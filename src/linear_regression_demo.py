@@ -1,40 +1,7 @@
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import argparse
-
-
-# For reproducibilty purpose.
-np.random.seed(42)
-
-
-def load_dataset(csv_path):
-    """
-    Expects CSV with columns: x1, x2, ..., y
-    """
-    df = pd.read_csv(csv_path)
-
-    X = df.drop("y", axis=1).values
-    y = df["y"].values.reshape(-1, 1)
-
-    # Add bias column
-    X_bias = np.c_[np.ones(len(X)), X]
-    return X_bias, y
-
-
-def generate_data(n_samples=50, n_features=3, noise_std=0.5):
-
-    X = np.random.rand(n_samples, n_features)
-    true_w = np.array([[5], [2], [-3], [1]])
-    X_bias = np.c_[np.ones(n_samples), X]
-    noise = np.random.normal(0, noise_std, size=(n_samples, 1))
-    y = X_bias @ true_w + noise
-    return X, X_bias, y, true_w
-
-
-def mse(y_true, y_pred):
-    error = y_true - y_pred
-    return np.mean(error**2)
+import utils as utils
 
 
 def fit_linear_regression(X, Y):
@@ -49,22 +16,18 @@ def fit_linear_regression_gradient_decent(X, Y, lr=0.01, steps=1000):
     n_samples, n_features = X.shape
     w = np.zeros((n_features, 1))
     for _ in range(steps):
-        y_pred = predict(X, w)
+        y_pred = utils.predict(X, w)
         error = y_pred - Y
 
         # ∇L(w)=2/n*(​X^T(Xw−y))
         grad = (2 / n_samples) * (X.T @ error)
         w -= lr * grad
-        losses.append(mse(Y, y_pred))
+        losses.append(utils.mse(Y, y_pred))
     return w, losses
 
 
-def predict(X, w):
-    return X @ w
-
-
 def train(csv_path, method, lr, epochs):
-    X, y = load_dataset(csv_path)
+    X, y = utils.load_dataset(csv_path)
 
     if method == "normal":
         w = fit_linear_regression(X, y)
@@ -118,7 +81,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     if args.train:
-        X, y = load_dataset(args.train)
+        X, y = utils.load_dataset(args.train)
 
         if args.method == "normal":
             w = fit_linear_regression(X, y)
