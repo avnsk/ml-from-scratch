@@ -1,41 +1,12 @@
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
-import argparse
-import utils as utils
 
-
-def fit_linear_regression(X, Y):
-    """
-    w = (X^T X)^(-1) X^T y
-    """
-    return np.linalg.inv(X.T @ X) @ (X.T @ y)
-
-
-def fit_linear_regression_gradient_decent(X, Y, lr=0.01, steps=1000):
-    losses = []
-    n_samples, n_features = X.shape
-    w = np.zeros((n_features, 1))
-    for _ in range(steps):
-        y_pred = utils.predict(X, w)
-        error = y_pred - Y
-
-        # ∇L(w)=2/n*(​X^T(Xw−y))
-        grad = (2 / n_samples) * (X.T @ error)
-        w -= lr * grad
-        losses.append(utils.mse(Y, y_pred))
-    return w, losses
-
-
-def train(csv_path, method, lr, epochs):
-    X, y = utils.load_dataset(csv_path)
-
-    if method == "normal":
-        w = fit_linear_regression(X, y)
-        losses = None
-    else:
-        w, losses = fit_linear_regression_gradient_decent(X, y, lr, epochs)
-
-    return w, losses, X, y
+import utils
+from linear_regression import (
+    fit_linear_regression,
+    fit_linear_regression_gradient_decent,
+)
 
 
 def parse_args():
@@ -43,17 +14,11 @@ def parse_args():
 
     parser.add_argument("--train", type=str, help="Training CSV path")
     parser.add_argument("--predict", type=str, help="Prediction CSV path")
+    parser.add_argument("--weights", type=str, help="Path to saved weights")
 
-    parser.add_argument(
-        "--method",
-        choices=["normal", "gd"],
-        default="normal",
-        help="Training method",
-    )
-
+    parser.add_argument("--method", choices=["normal", "gd"], default="normal")
     parser.add_argument("--lr", type=float, default=0.01)
     parser.add_argument("--epochs", type=int, default=1000)
-    parser.add_argument("--weights", type=str, help="Path to saved weights (.npy)")
 
     return parser.parse_args()
 
@@ -77,18 +42,37 @@ def plot_regression(X, y, w):
     plt.show()
 
 
-if __name__ == "__main__":
+def main():
     args = parse_args()
-
     if args.train:
         X, y = utils.load_dataset(args.train)
-
         if args.method == "normal":
             w = fit_linear_regression(X, y)
-            losses = None
         else:
             w, losses = fit_linear_regression_gradient_decent(
                 X, y, args.lr, args.epochs
             )
+        np.save("weights.npy", w)
+        y_pred = utils.predict(X, w)
+
+        print("Training complete")
+        print("MSE :", utils.mse(y, y_pred))
+        print("RMSE:", utils.rmse(y, y_pred))
+        print("MAE :", utils.mae(y, y_pred))
 
         plot_regression(X, y, w)
+    if args.predict:
+        if not args.weights:
+            raise ValueError("Provide --weights for prediction")
+
+        w = np.load(args.weights)
+        print(w)
+        X, _ = utils.load_dataset(args.predict)
+
+        y_pred = utils.predict(X, w)
+        print("Predictions:")
+        print(y_pred[:10])
+
+
+if __name__ == "__main__":
+    main()
