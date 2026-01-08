@@ -44,3 +44,11 @@ def generate_data(n_samples=50, n_features=3, noise_std=0.5):
     noise = np.random.normal(0, noise_std, size=(n_samples, 1))
     y = X_bias @ true_w + noise
     return X, X_bias, y, true_w
+
+
+def normalise_features(X):
+    X_norm = X.copy()
+    means = X_norm[:, 1:].mean(axis=0)
+    stds = X_norm[:, 1:].std(axis=0)
+    X_norm[:, 1:] = X_norm[:, 1:] - means / stds
+    return X_norm, means, stds
