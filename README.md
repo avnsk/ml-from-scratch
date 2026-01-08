@@ -1,6 +1,41 @@
 # ML From Scratch
 
-**Status:** Day 0 – Setup & Planning  
+This repository is a **hands-on Machine Learning project** focused on implementing core ML algorithms **from first principles** using Python and NumPy.
 
-This repository is intended to be a **hands-on learning project** where I implement basic Machine Learning algorithms **from scratch** in Python, without relying on high-level libraries like scikit-learn or TensorFlow. The goal is to **understand the inner workings of ML algorithms** by building them manually.
+The goal is to deeply understand how Machine Learning works internally by manually implementing:
+- model equations
+- loss functions
+- optimization algorithms
+- feature scaling
+- evaluation metrics
+- command-line interfaces
 
+No high-level ML libraries (e.g. scikit-learn, TensorFlow, PyTorch) are used.
+
+---
+
+## 🚀 Implemented Features
+
+### Linear Regression (From Scratch)
+- Normal Equation solution
+- Gradient Descent optimization
+- Mean Squared Error (MSE) loss
+- Training and prediction pipeline
+
+### Feature Normalization
+- Z-score normalization (mean = 0, std = 1)
+- Bias term excluded from normalization
+- Normalization parameters reused during inference
+- Stable and faster gradient descent convergence
+
+### Evaluation Metrics
+- Mean Squared Error (MSE)
+- Root Mean Squared Error (RMSE)
+- Mean Absolute Error (MAE)
+
+### Command-Line Interface (CLI)
+Run training and prediction directly from the terminal.
+
+```bash
+python cli.py --train data/train.csv --method gd
+python cli.py --predict data/predict.csv --weights weights.npy

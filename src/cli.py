@@ -49,10 +49,13 @@ def main():
         if args.method == "normal":
             w = fit_linear_regression(X, y)
         else:
+            X, means, stds = utils.normalise_features(X)
             w, losses = fit_linear_regression_gradient_decent(
                 X, y, args.lr, args.epochs
             )
         np.save("weights.npy", w)
+        np.save("scaler_means.npy", means)
+        np.save("scaler_stds.py", stds)
         y_pred = utils.predict(X, w)
 
         print("Training complete")
@@ -68,6 +71,10 @@ def main():
         w = np.load(args.weights)
         print(w)
         X, _ = utils.load_dataset(args.predict)
+        if args.method == "gd":
+            means = np.load("scaler_means.npy")
+            stds = np.load("scaler_stds.npy")
+            X[:, 1:] = (X[:, 1:] - means) / stds
 
         y_pred = utils.predict(X, w)
         print("Predictions:")
