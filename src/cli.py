@@ -55,7 +55,7 @@ def main():
             )
         np.save("weights.npy", w)
         np.save("scaler_means.npy", means)
-        np.save("scaler_stds.py", stds)
+        np.save("scaler_stds.npy", stds)
         y_pred = utils.predict(X, w)
 
         print("Training complete")
