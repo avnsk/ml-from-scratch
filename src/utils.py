@@ -18,12 +18,21 @@ def mae(y_true, y_pred):
     return np.mean(np.abs(y_true - y_pred))
 
 
+def validate_dataset(df):
+    if "y" not in df.columns:
+        raise ValueError("Dataset must contain a 'y' column")
+    if len(df.columns) < 2:
+        raise ValueError("Dataset must contain at least one feature column")
+    if not all(df.dtypes.apply(lambda x: np.issubdtype(x, np.number))):
+        raise ValueError("All columns must be numeric")
+
+
 def load_dataset(csv_path):
     """
     Expects CSV with columns: x1, x2, ..., y
     """
     df = pd.read_csv(csv_path)
-
+    validate_dataset(df)
     X = df.drop("y", axis=1).values
     y = df["y"].values.reshape(-1, 1)
 
