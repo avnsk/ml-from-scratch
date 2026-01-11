@@ -71,5 +71,5 @@ def normalise_features(X):
     X_norm = X.copy()
     means = X_norm[:, 1:].mean(axis=0)
     stds = X_norm[:, 1:].std(axis=0)
-    X_norm[:, 1:] = X_norm[:, 1:] - means / stds
+    X_norm[:, 1:] = (X_norm[:, 1:] - means) / stds
     return X_norm, means, stds
