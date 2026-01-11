@@ -41,6 +41,18 @@ def load_dataset(csv_path):
     return X_bias, y
 
 
+def train_test_split(X, y, test_size=0.2, shuffle=True):
+    indices = np.arange(len(X))
+    if shuffle:
+        np.random.shuffle(indices)
+    split_idx = int(len(X) * (1 - test_size))
+    train_idx = indices[:split_idx]
+    test_idx = indices[split_idx:]
+    X_train, X_test = X[train_idx], X[test_idx]
+    y_train, y_test = y[train_idx], y[test_idx]
+    return X_train, X_test, y_train, y_test
+
+
 def predict(X, w):
     return X @ w
 
@@ -59,5 +71,5 @@ def normalise_features(X):
     X_norm = X.copy()
     means = X_norm[:, 1:].mean(axis=0)
     stds = X_norm[:, 1:].std(axis=0)
-    X_norm[:, 1:] = X_norm[:, 1:] - means / stds
+    X_norm[:, 1:] = (X_norm[:, 1:] - means) / stds
     return X_norm, means, stds

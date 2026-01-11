@@ -46,22 +46,32 @@ def main():
     args = parse_args()
     if args.train:
         X, y = utils.load_dataset(args.train)
+        X_train, X_test, y_train, y_test = utils.train_test_split(X, y, test_size=0.2)
         if args.method == "normal":
-            w = fit_linear_regression(X, y)
+            w = fit_linear_regression(X_train, y_train)
         else:
-            X, means, stds = utils.normalise_features(X)
+            X_train, means, stds = utils.normalise_features(X_train)
+            X_test[:, 1:] = (X_test[:, 1:] - means) / stds
             w, losses = fit_linear_regression_gradient_decent(
-                X, y, args.lr, args.epochs
+                X_train, y_train, args.lr, args.epochs
             )
         np.save("weights.npy", w)
         np.save("scaler_means.npy", means)
         np.save("scaler_stds.npy", stds)
-        y_pred = utils.predict(X, w)
+        # Predictions
+        train_pred = utils.predict(X_train, w)
+        test_pred = utils.predict(X_test, w)
+        print("\nTraining complete\n")
 
-        print("Training complete")
-        print("MSE :", utils.mse(y, y_pred))
-        print("RMSE:", utils.rmse(y, y_pred))
-        print("MAE :", utils.mae(y, y_pred))
+        print("Train Metrics:")
+        print("MSE :", utils.mse(y_train, train_pred))
+        print("RMSE:", utils.rmse(y_train, train_pred))
+        print("MAE :", utils.mae(y_train, train_pred))
+
+        print("\nTest Metrics:")
+        print("MSE :", utils.mse(y_test, test_pred))
+        print("RMSE:", utils.rmse(y_test, test_pred))
+        print("MAE :", utils.mae(y_test, test_pred))
 
         plot_regression(X, y, w)
     if args.predict:
