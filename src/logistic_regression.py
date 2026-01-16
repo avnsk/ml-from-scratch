@@ -2,6 +2,28 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+def confusion_matrix(y_true, y_pred):
+    tp = np.sum((y_true == 1) & (y_pred == 1))
+    tn = np.sum((y_true == 0) & (y_pred == 0))
+    fp = np.sum((y_true == 0) & (y_pred == 1))
+    fn = np.sum((y_true == 1) & (y_pred == 0))
+    return tp, tn, fp, fn
+
+
+def accuracy(y_true, y_pred):
+    return np.mean(y_true == y_pred)
+
+
+def precision(y_true, y_pred):
+    tp, _, fp, _ = confusion_matrix(y_true, y_pred)
+    return tp / (tp + fp + 1e-15)
+
+
+def recall(y_true, y_pred):
+    tp, _, _, fn = confusion_matrix(y_true, y_pred)
+    return tp / (tp + fn + 1e-15)
+
+
 def sigmoid(z: float) -> float:
     return 1 / (1 + np.exp(-z))
 
@@ -60,6 +82,12 @@ if __name__ == "__main__":
     y = np.array([0, 0, 1, 1])
     w, losses = fit_logistic_regression(X, y)
     test_boundary(w)
+    for t in [0.3, 0.5, 0.7]:
+        y_pred = predict(X, w, threshold=t)
+        print(f"\nThreshold = {t}")
+        print("Accuracy:", accuracy(y, y_pred))
+        print("Precision:", precision(y, y_pred))
+        print("Recall:", recall(y, y_pred))
     # print("Final weights:", w)
     # print("Final loss:", losses[-1])
     # plt.plot(losses)
