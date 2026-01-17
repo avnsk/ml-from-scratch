@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import utils as utils
 
 
 def confusion_matrix(y_true, y_pred):
@@ -78,9 +79,10 @@ def test_boundary(w):
 
 
 if __name__ == "__main__":
-    X = np.c_[np.ones(4), [0, 1, 2, 3]]
-    y = np.array([0, 0, 1, 1])
-    w, losses = fit_logistic_regression(X, y)
+    X = np.c_[np.ones(8), [0, 1, 2, 3, 4, 5, 6, 7]]
+    y = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+    X_train, X_test, y_train, y_test = utils.train_test_split(X, y, test_size=0.25)
+    w, losses = fit_logistic_regression(X_train, y_train)
     test_boundary(w)
     for t in [0.3, 0.5, 0.7]:
         y_pred = predict(X, w, threshold=t)
@@ -88,6 +90,12 @@ if __name__ == "__main__":
         print("Accuracy:", accuracy(y, y_pred))
         print("Precision:", precision(y, y_pred))
         print("Recall:", recall(y, y_pred))
+
+        y_test_pred = predict(X_test, w)
+        print("\nTest metrics:")
+        print("Accuracy:", accuracy(y_test, y_test_pred))
+        print("Precision:", precision(y_test, y_test_pred))
+        print("Recall:", recall(y_test, y_test_pred))
     # print("Final weights:", w)
     # print("Final loss:", losses[-1])
     # plt.plot(losses)
