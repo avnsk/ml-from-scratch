@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import utils as utils
 
 
 def confusion_matrix(y_true, y_pred):
@@ -60,6 +61,21 @@ def fit_logistic_regression(X, y, lr=0.001, epochs=1000):
     return w, losses
 
 
+def plot_decision_boundary_2d(X, y, w):
+    # X includes bias: [1, x1, x2]
+    x1_vals = np.linspace(X[:,1].min() - 1, X[:,1].max() + 1, 100)
+    x2_vals = -(w[0] + w[1] * x1_vals) / w[2]
+
+    plt.scatter(X[y == 0][:,1], X[y == 0][:,2], color="blue", label="Class 0")
+    plt.scatter(X[y == 1][:,1], X[y == 1][:,2], color="red", label="Class 1")
+    plt.plot(x1_vals, x2_vals, color="green", label="Decision Boundary")
+
+    plt.xlabel("x1")
+    plt.ylabel("x2")
+    plt.legend()
+    plt.title("2D Logistic Regression Decision Boundary")
+    plt.show()
+
 def test_boundary(w):
     x_vals = np.linspace(-1, 4, 200)
     X_plot = np.c_[np.ones(len(x_vals)), x_vals]
@@ -78,16 +94,23 @@ def test_boundary(w):
 
 
 if __name__ == "__main__":
-    X = np.c_[np.ones(4), [0, 1, 2, 3]]
-    y = np.array([0, 0, 1, 1])
-    w, losses = fit_logistic_regression(X, y)
-    test_boundary(w)
-    for t in [0.3, 0.5, 0.7]:
-        y_pred = predict(X, w, threshold=t)
-        print(f"\nThreshold = {t}")
-        print("Accuracy:", accuracy(y, y_pred))
-        print("Precision:", precision(y, y_pred))
-        print("Recall:", recall(y, y_pred))
+    X = np.array([
+        [1, 1],
+        [2, 1],
+        [2, 2],
+        [3, 2],
+        [3, 3],
+        [4, 3],
+        [4, 4],
+        [5, 4]
+    ])
+    y = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+    X = np.c_[np.ones(len(X)), X]   # shape: (n, 3)
+
+    X_train, X_test, y_train, y_test = utils.train_test_split(X, y, test_size=0.25)
+    w, losses = fit_logistic_regression(X_train, y_train, lr = 0.1, epochs = 2000)
+    plot_decision_boundary_2d(X_train, y_train, w)
+
     # print("Final weights:", w)
     # print("Final loss:", losses[-1])
     # plt.plot(losses)
