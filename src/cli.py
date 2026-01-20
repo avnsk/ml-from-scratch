@@ -8,7 +8,11 @@ from linear_regression import (
     fit_linear_regression_gradient_decent,
 )
 
-from logistic_regression import fit_logistic_regression, predict as logistic_predict
+from logistic_regression import (
+    fit_logistic_regression,
+    predict as logistic_predict,
+    predict_proba,
+)
 
 
 def parse_args():
@@ -102,7 +106,7 @@ def main():
             raise ValueError("Provide --weights for prediction")
         w = np.load(args.weights)
         print(w)
-        X, _ = utils.load_dataset(args.predict)
+        X, Y = utils.load_dataset(args.predict)
         if args.model == "linear":
             if args.method == "gd":
                 means = np.load("scaler_means.npy")
@@ -113,7 +117,10 @@ def main():
             print("Predictions:")
             print(y_pred[:10])
         elif args.model == "logistic":
-            y_pred = logistic_predict(X, w)
+            y_pred = predict_proba(X, w)
+            fprs, tprs = utils.roc_curve(Y, y_pred)
+            auc = utils.auc_score(fprs, tprs)
+            print(f"\nROC AUC Score: {auc:.4f}")
             print("Predictions (first 10):")
             print(y_pred[:10])
 
