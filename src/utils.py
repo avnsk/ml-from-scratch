@@ -95,3 +95,32 @@ def normalise_features(X):
     stds = X_norm[:, 1:].std(axis=0)
     X_norm[:, 1:] = (X_norm[:, 1:] - means) / stds
     return X_norm, means, stds
+
+
+def roc_curve(y_true, y_prob, thresholds=None):
+    if thresholds is None:
+        thresholds = np.linspace(0, 1, 101)
+
+    tprs = []
+    fprs = []
+
+    for t in thresholds:
+        y_pred = (y_prob >= t).astype(int)
+        tp, fp, fn, tn = confusion_matrix(y_true, y_pred)
+
+        tpr = tp / (tp + fn + 1e-15)
+        fpr = fp / (fp + tn + 1e-15)
+
+        tprs.append(tpr)
+        fprs.append(fpr)
+
+    return np.array(fprs), np.array(tprs)
+
+
+def auc_score(fprs, tprs):
+    order = np.argsort(fprs)
+    fprs = fprs[order]
+    tprs = tprs[order]
+
+    # Trapezoidal rule
+    return np.trapezoid(tprs, fprs)
