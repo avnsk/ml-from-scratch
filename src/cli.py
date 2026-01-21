@@ -84,13 +84,23 @@ def main():
 
             plot_regression(X, y, w)
         elif args.model == "logistic":
+            X_train, means, stds = utils.normalise_features(X_train)
             w, losses = fit_logistic_regression(
                 X_train, y_train.ravel(), lr=args.lr, epochs=args.epochs
             )
+            X_test[:, 1:] = (X_test[:, 1:] - means) / stds
+
             np.save("weights.npy", w)
+            np.save("scaler_means.npy", means)
+            np.save("scaler_stds.npy", stds)
 
             y_train_pred = logistic_predict(X_train, w)
             y_test_pred = logistic_predict(X_test, w)
+
+            y_test_prob = predict_proba(X_test, w)
+            fprs, tprs = utils.roc_curve(y_test.ravel(), y_test_prob)
+            auc = utils.auc_score(fprs, tprs)
+            print(f"\nROC AUC Score: {auc:.4f}")
 
             print("Train Metrics:")
             print("Accuracy :", utils.accuracy(y_train.ravel(), y_train_pred))
@@ -117,10 +127,10 @@ def main():
             print("Predictions:")
             print(y_pred[:10])
         elif args.model == "logistic":
-            y_pred = predict_proba(X, w)
-            fprs, tprs = utils.roc_curve(Y, y_pred)
-            auc = utils.auc_score(fprs, tprs)
-            print(f"\nROC AUC Score: {auc:.4f}")
+            means = np.load("scaler_means.npy")
+            stds = np.load("scaler_stds.npy")
+            X[:, 1:] = (X[:, 1:] - means) / stds
+            y_pred = logistic_predict(X, w)
             print("Predictions (first 10):")
             print(y_pred[:10])
 
