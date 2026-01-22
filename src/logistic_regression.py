@@ -26,15 +26,15 @@ def binary_cross_entropy(y, y_pred, eps=1e-15):
     return -np.mean(y * np.log(y_pred) + (1 - y) * np.log(1 - y_pred))
 
 
-def fit_logistic_regression(X, y, lr=0.001, epochs=1000):
+def fit_logistic_regression(X, y, lr=0.001, epochs=1000, reg=100):
     n_samples, n_features = X.shape
     w = np.zeros(n_features)
     losses = []
     for _ in range(epochs):
         y_predict = predict_proba(X, w)
-        loss = binary_cross_entropy(y, y_predict)
+        loss = binary_cross_entropy(y, y_predict) + reg * np.sum(w**2)
         losses.append(loss)
-        grad = (1 / n_samples) * X.T @ (y_predict - y)
+        grad = (1 / n_samples) * X.T @ (y_predict - y) + 2 * reg * w
         w -= lr * grad
     return w, losses
 
